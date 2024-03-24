@@ -1,4 +1,4 @@
-# PYSS - Python Script Support
+# PySS - Python Script Support
 
 Adds a utility for running pyss.yaml files.
 
