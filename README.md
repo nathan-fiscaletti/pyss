@@ -33,6 +33,13 @@ Execute:         echo Heisenberg
 Heisenberg
 ```
 
+If you wish to hide the header output, you can use the `--silent` flag.
+
+```bash
+$ pyss --silent say-my-name
+Heisenberg
+```
+
 ## Utility
 
 To list the commands available in the `pyss.yaml` file, you can run the following command:

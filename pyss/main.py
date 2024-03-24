@@ -31,7 +31,14 @@ def main():
 
     scripts = scripts_config["scripts"]
 
-    action = sys.argv[1]
+    action_idx = 1
+
+    silent = False
+    if sys.argv[1] == "--silent":
+        silent = True
+        action_idx = 2
+
+    action = sys.argv[action_idx]
 
     if action == "--list":
         print()
@@ -64,11 +71,12 @@ def main():
     for script in scripts:
         if script["name"] == desired_script:
             script_command = script["command"]
-            name_colored = colored(script["name"], __SCRIPT_COLOR)
-            command_colored = colored(script_command, __COMMAND_COLOR)
-            print()
-            print(f"Running script:  {name_colored}")
-            print(f"Execute:         {command_colored}")
-            print()
+            if not silent:
+                name_colored = colored(script["name"], __SCRIPT_COLOR)
+                command_colored = colored(script_command, __COMMAND_COLOR)
+                print()
+                print(f"Running script:  {name_colored}")
+                print(f"Execute:         {command_colored}")
+                print()
             exit_code = os.system(script_command)
             sys.exit(exit_code)
