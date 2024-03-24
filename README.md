@@ -5,7 +5,7 @@ Adds a utility for running pyss.yaml files.
 ## Installation
 
 ```bash
-pip install -g pyss
+pip install pyss
 ```
 
 ## Usage
