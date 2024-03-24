@@ -1,0 +1,7 @@
+scripts:
+  - name: say-my-name
+    description: Says his name
+    command: echo Heisenberg
+  - name: ww
+    description: What could it stand for?
+    command: echo Willy Wonka?

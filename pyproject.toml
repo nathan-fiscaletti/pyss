@@ -1,0 +1,20 @@
+[project]
+name = "pyss"
+version = "1.0.0"
+authors = [
+  { name="Nathan Fiscaletti", email="nate.fiscaletti@gmail.com" },
+]
+description = "Adds a utility for running pyss.yaml files."
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/nathan-fiscaletti/pyss"
+
+[project.scripts]
+pyss = "pyss.main:main"
