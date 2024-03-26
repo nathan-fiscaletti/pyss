@@ -7,7 +7,7 @@ setup(
     author="Nathan Fiscaletti",
     author_email="nate.fiscaletti@gmail.com",
     packages=["pyss"],
-    install_requires=["termcolor"],
+    install_requires=["termcolor", "PyYAML"],
     entry_points={
         "console_scripts": [
             "pyss = pyss.main:main",
