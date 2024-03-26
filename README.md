@@ -65,12 +65,31 @@ scripts:
       NAME: Heisenberg
 ```
 
+**With `--silent`**
+
 ```sh
 $ export AGE=28
 $ pyss --silent run
 Hello, Heisenberg!
 Your name is Heisenberg
 You are 28 years old.
+Goodbye, Heisenberg!
+```
+
+**Without `--silent`**
+
+```sh
+$ export AGE=28
+$ pyss run
+[pyss] [run script] 'run'
+[pyss] [run script] 'print-greeting'
+[pyss] [os.system] 'echo Hello, ${NAME}!'
+Hello, Heisenberg!
+[pyss] [os.system] 'echo Your name is ${NAME} && echo You are ${AGE} years old.'
+Your name is Heisenberg
+You are 28 years old.
+[pyss] [run script] 'print-farewell'
+[pyss] [os.system] 'echo Goodbye, ${NAME}!'
 Goodbye, Heisenberg!
 ```
 
