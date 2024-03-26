@@ -1,7 +1,15 @@
 scripts:
-  - name: say-my-name
-    description: Says his name
-    command: echo Heisenberg
-  - name: ww
-    description: What could it stand for?
-    command: echo Willy Wonka?
+  - name: print-name-header
+    internal: true
+    command: "echo Your name is"
+
+  - name: print-name
+    description: Prints the name with a header.
+    before:
+     - print-name-header
+     - echo dick balls
+    command: echo ${NAME} and you are ${AGE} years old.
+    after:
+      - echo suck it
+    env:
+      NAME: Heisenberg
