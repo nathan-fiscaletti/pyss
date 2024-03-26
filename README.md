@@ -25,11 +25,8 @@ Then, to run one of the commands, use the `pyss` command from the root of your p
 
 ```bash
 $ pyss say-my-name
-
-Running Script:  say-my-name
-
-Execute:         echo Heisenberg
-
+[pyss] [run script] 'say-my-name'
+[pyss] [os.system] 'echo Heisenberg'
 Heisenberg
 ```
 
@@ -49,25 +46,32 @@ Heisenberg
 
 ```yaml
 scripts:
-  - name: print-name-header
+  - name: print-greeting
     internal: true
-    command: "echo Your name is:"
+    command: echo Hello, ${NAME}!
 
-  - name: print-name
+  - name: print-farewell
+    internal: true
+    command: "echo Goodbye, ${NAME}!"
+
+  - name: run
     description: Prints the name with a header.
     before:
-     - print-name-header
-     - echo dick balls
-    command: echo ${NAME} and you are ${AGE} years old.
+     - print-greeting
+    command: echo Your name is ${NAME} && echo You are ${AGE} years old.
+    after:
+      - print-farewell
     env:
       NAME: Heisenberg
 ```
 
 ```sh
 $ export AGE=28
-$ pyss --silent print-name
-Your name is:
-Heisenberg and you are 28 years old.
+$ pyss --silent run
+Hello, Heisenberg!
+Your name is Heisenberg
+You are 28 years old.
+Goodbye, Heisenberg!
 ```
 
 ## Utility
@@ -76,12 +80,9 @@ To list the commands available in the `pyss.yaml` file, you can run the followin
 
 ```bash
 $ pyss --list
-
 Run script with: pyss <script_name>
-
 Available Scripts found in pyss.yaml:
-
-    - print-name : Prints the name with a header.
+    - run : Prints the name with a header.
 ```
 
 ## Attribution
