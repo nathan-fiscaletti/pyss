@@ -1,5 +1,11 @@
 # PySS: Python Script Support Tool
 
+[![Sponsor Me!](https://img.shields.io/badge/%F0%9F%92%B8-Sponsor%20Me!-blue)](https://github.com/sponsors/nathan-fiscaletti)
+[![PyPI version](https://badge.fury.io/py/pyss.svg)](https://badge.fury.io/py/pyss)
+[![GitHub license](https://img.shields.io/github/license/nathan-fiscaletti/pyss.svg)](https://github.com/nathan-fiscaletti/pyss/blob/master/LICENSE)
+[![Downloads](https://static.pepy.tech/badge/pyss)](https://pepy.tech/project/pyss)
+[![Downloads](https://static.pepy.tech/badge/pyss/month)](https://pepy.tech/project/pyss)
+
 PySS offers an efficient way to manage and execute `pyss.yaml` configurations, enhancing your Python scripting workflow.
 
 ## Getting Started
@@ -42,7 +48,7 @@ Below is a straightforward example to get you started:
 # Configure PySS settings here (all optional).
 pyss:
  min_version: 1.0.2
- max_version: 1.0.7
+ max_version: 1.0.8
 
 # List your executable scripts.
 scripts:
