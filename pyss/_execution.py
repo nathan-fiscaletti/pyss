@@ -23,11 +23,8 @@ def __execute_command(
         lambda match: colored(match.group(), ENV_VAR_COLOR),
         command,
     )
-    if not quiet:
-        if disable_output:
-            linfo("os.system <silent>", command_colored)
-        else:
-            linfo("os.system", command_colored)
+    if not quiet and not disable_output:
+        linfo("os.system", command_colored)
 
     try:
         evaluated_script_command = evaluate_environment_variables(command)
@@ -37,9 +34,8 @@ def __execute_command(
 
     proc = subprocess.Popen(
         evaluated_script_command,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE if not disable_output else subprocess.DEVNULL,
-        stderr=subprocess.PIPE if not disable_output else subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL if disable_output else None,
+        stderr=subprocess.DEVNULL if disable_output else None,
         shell=True,
     )
 
@@ -74,7 +70,7 @@ def __execute_dependency(
             exit_code = __execute_command(dependency, quiet, disable_output)
         return exit_code
     elif isinstance(dependency, dict):
-        silent = False
+        silent = disable_output
         if "silent" in dependency:
             silent = dependency["silent"]
 
@@ -128,11 +124,8 @@ def run_script(
 
     script = next(script for script in scripts if script["name"] == script_name)
 
-    if not quiet:
-        if disable_output:
-            linfo("run script <silent>", script["name"], DETAIL_COLOR)
-        else:
-            linfo("run script", script["name"], DETAIL_COLOR)
+    if not quiet and not disable_output:
+        linfo("run script", script["name"], DETAIL_COLOR)
 
     if "env" in script:
         prime_environment(script["env"])

@@ -11,7 +11,6 @@ scripts:
     description: Displays a customized greeting and farewell.
     before:
       - script: print-greeting
-        silent: true
     commands: 
       - echo Your name is ${NAME}
       - echo You are ${AGE} years old.

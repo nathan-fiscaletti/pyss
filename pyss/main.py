@@ -58,7 +58,7 @@ def main():
         sys.stdout = open(os.devnull, "w")
         sys.stderr = open(os.devnull, "w")
 
-    exit_code = run_script(scripts, desired_script, args.quiet)
+    exit_code = run_script(scripts, desired_script, args.quiet, args.silent)
     sys.exit(exit_code)
 
 
