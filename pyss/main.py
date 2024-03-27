@@ -246,20 +246,23 @@ def __parse_arguments() -> tuple[argparse.Namespace, lambda: None]:
     )
 
     parser.add_argument(
-        "-l", "--list", action="store_true", help="List all available scripts."
+        "-l",
+        "--list",
+        action="store_true",
+        help="Shows a list of all scripts configured for use.",
     )
 
     parser.add_argument(
         "-s",
         "--silent",
         action="store_true",
-        help="Run the script suppressing all output.",
+        help="Executes the script without any output.",
     )
     parser.add_argument(
         "-q",
         "--quiet",
         action="store_true",
-        help="Run the script suppressing header [pyss] messages.",
+        help="Executes the script while omitting the [pyss] header messages.",
     )
 
     parser.add_argument(
@@ -270,7 +273,9 @@ def __parse_arguments() -> tuple[argparse.Namespace, lambda: None]:
         version=f"%(prog)s v{app_version('pyss')}",
     )
 
-    parser.add_argument("script_name", nargs="?", help="The name of the script to run.")
+    parser.add_argument(
+        "script_name", nargs="?", help="Specifies the script you wish to execute."
+    )
 
     return parser.parse_args(), lambda: parser.print_help()
 

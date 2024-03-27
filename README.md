@@ -19,16 +19,17 @@ PySS streamlines script execution through a user-friendly command-line interface
 ```yaml
 usage: pyss [options] [script_name]
 
-This utility facilitates running Python scripts with ease.
+A simple script runner for Python.
 
 positional arguments:
-  script_name   Specifies the script you wish to execute.
+  script_name    The name of the script to run.
 
 options:
-  -h, --help    Displays this guide.
-  -l, --list    Shows a list of all scripts configured for use.
-  -s, --silent  Executes the script without any output.
-  -q, --quiet   Executes the script while omitting the [pyss] header messages.
+  -h, --help     show this help message and exit
+  -l, --list     List all available scripts.
+  -s, --silent   Run the script suppressing all output.
+  -q, --quiet    Run the script suppressing header [pyss] messages.
+  -v, --version  Prints the program version to stdout.
 ```
 
 To configure your project with PySS, create a `pyss.yaml` or `pyss.yml` file at the project root. This file should enumerate the commands you plan to execute.
@@ -41,7 +42,7 @@ Below is a straightforward example to get you started:
 # Configure PySS settings here (all optional).
 pyss:
  min_version: 1.0.2
- max_version: 1.0.6
+ max_version: 1.0.7
 
 # List your executable scripts.
 scripts:
