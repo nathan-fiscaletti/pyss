@@ -1,50 +1,56 @@
-# PySS - Python Script Support
+# PySS: Python Script Support Tool
 
-Adds a utility for running pyss.yaml files.
+PySS offers an efficient way to manage and execute `pyss.yaml` configurations, enhancing your Python scripting workflow.
 
-## Installation
+## Getting Started
+
+### Installing PySS
+
+To integrate PySS into your environment, simply run:
 
 ```bash
 pip install pyss
 ```
 
-## Usage
+### How to Use
+
+PySS streamlines script execution through a user-friendly command-line interface:
 
 ```yaml
 usage: pyss [options] [script_name]
 
-A simple script runner for Python.
+This utility facilitates running Python scripts with ease.
 
 positional arguments:
-  script_name   The name of the script to run.
+  script_name   Specifies the script you wish to execute.
 
 options:
-  -h, --help    show this help message and exit
-  -l, --list    List all available scripts.
-  -s, --silent  Run the script suppressing all output.
-  -q, --quiet   Run the script suppressing header [pyss] messages.
+  -h, --help    Displays this guide.
+  -l, --list    Shows a list of all scripts configured for use.
+  -s, --silent  Executes the script without any output.
+  -q, --quiet   Executes the script while omitting the [pyss] header messages.
 ```
 
-Define a `pyss.yaml` or `pyss.yml` file in the root of your project. This file should contain a list of commands to run.
+To configure your project with PySS, create a `pyss.yaml` or `pyss.yml` file at the project root. This file should enumerate the commands you plan to execute.
 
-### Basic Example
+#### Configuration Example
+
+Below is a straightforward example to get you started:
 
 ```yaml
-# Optionally provide a configuration
-# for this PySS file. All fields are
-# optional.
+# Configure PySS settings here (all optional).
 pyss:
  min_version: 1.0.2
- max_version: 1.0.5
+ max_version: 1.0.6
 
-# Define a list of scripts that can be run.
+# List your executable scripts.
 scripts:
   - name: say-my-name
-    description: Says his name
+    description: Outputs a predetermined name
     command: echo Heisenberg
 ```
 
-Then, to run one of the scripts, use the `pyss` command from the root of your project.
+Execute a script by invoking the `pyss` command at your project's root:
 
 ```bash
 $ pyss say-my-name
@@ -53,19 +59,13 @@ $ pyss say-my-name
 Heisenberg
 ```
 
-### Advanced Example
+#### Advanced Configuration
 
-- You can provide environment variables that will be evaluated at run time by formatting them as `${ENV_VAR}`.
-- You can provide custom environment variables in the `env` section.
-  - The `env` section is a dictionary of key-value pairs.
-  - The key is the environment variable name and the value is the environment variable value.
-  - If an environment variable is already set in the system, the value provided in the `env` section will override it during the execution of the script.
-- You can provide 'before' and 'after' scripts to run before and after the main command.
-  - The `before` and `after` scripts can be a single script or a list of scripts.
-  - The `before` and `after` scripts can either be a shell command to execute, or the name of another script defined in the `pyss.yaml` file.
-- You can mark scripts as "internal". 
-  - Internal scripts will not show in `--list` output and cannot be executed directly.
-  - For internal scripts, the `description` field is optional.
+For more complex setups, PySS supports environment variables, custom variables, pre/post execution scripts, and internal script designation:
+
+- **Environment Variables**: Use `${VAR_NAME}` format to utilize environment variables within scripts. Define custom environment variables in the `env` section.
+- **Pre/Post Execution Scripts**: Specify scripts to run before (`before`) and after (`after`) the main script. These can be direct commands or references to other scripts in your configuration.
+- **Internal Scripts**: Scripts marked as "internal" won't appear in the `--list` output and can't be invoked directly. The `description` for internal scripts is optional.
 
 ```yaml
 scripts:
@@ -78,7 +78,7 @@ scripts:
     command: "echo Goodbye, ${NAME}!"
 
   - name: run
-    description: Prints the name with a header.
+    description: Displays a customized greeting and farewell.
     before:
      - print-greeting
     command: echo Your name is ${NAME} && echo You are ${AGE} years old.
@@ -88,9 +88,9 @@ scripts:
       NAME: Heisenberg
 ```
 
-### Execution Example
+### Running Scripts
 
-**Without any flags (Verbose)**
+**Verbose Execution (Default)**
 
 ```sh
 $ export AGE=28
@@ -107,9 +107,7 @@ You are 28 years old.
 Goodbye, Heisenberg!
 ```
 
-**With `--quiet`**
-
-> Quiet mode suppresses the `[pyss]` messages. (Will still print error messages)
+**Quiet Mode (`--quiet`)**
 
 ```sh
 $ export AGE=28
@@ -120,21 +118,24 @@ You are 28 years old.
 Goodbye, Heisenberg!
 ```
 
-**With `--silent`**
+**Silent Mode (`--silent`)**
 
-> Silent mode suppresses all output.
+```bash
+# This mode executes the script without producing any output.
+```
 
-## Utility
+### Additional Features
 
-To list the commands available in the `pyss.yaml` file, you can run the following command:
+To view a list of configured scripts, use:
 
 ```bash
 $ pyss --list
-Run script with: pyss <script_name>
-Available Scripts found in pyss.yaml:
-    - run : Prints the name with a header.
 ```
 
-## Attribution
+## Credits
 
-Thanks to Pyss Man: [@mavrw](https://github.com/mavrw)
+Special thanks to Pyss Man: [@mavrw](https://github.com/mavrw)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
