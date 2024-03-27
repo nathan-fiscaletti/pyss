@@ -20,7 +20,7 @@ from pyss._constants import (
 )
 
 
-def get_scripts() -> tuple[list, str]:
+def get_raw_config() -> tuple[dict, str]:
     scripts_file_pattern = re.compile(SCRIPTS_FILE_PATTERN, re.IGNORECASE)
     scripts_file = None
 
@@ -36,8 +36,16 @@ def get_scripts() -> tuple[list, str]:
 
     scripts_config = yaml.load(open(scripts_file), Loader=yaml.FullLoader)
 
+    return scripts_config, scripts_file
+
+
+def validate_config(scripts_config: dict):
+    validate_pyss(scripts_config)
+
+
+def get_scripts(cfg: dict) -> list:
     try:
-        validate_pyss(scripts_config)
+        validate_config(cfg)
     except ValidationError as e:
         lerror(e.message, title="Validation Error")
         sys.exit(1)
@@ -45,11 +53,11 @@ def get_scripts() -> tuple[list, str]:
     min_version = None
     max_version = None
 
-    if "pyss" in scripts_config:
-        if "min_version" in scripts_config["pyss"]:
-            min_version = scripts_config["pyss"]["min_version"]
-        if "max_version" in scripts_config["pyss"]:
-            max_version = scripts_config["pyss"]["max_version"]
+    if "pyss" in cfg:
+        if "min_version" in cfg["pyss"]:
+            min_version = cfg["pyss"]["min_version"]
+        if "max_version" in cfg["pyss"]:
+            max_version = cfg["pyss"]["max_version"]
 
     if min_version is not None:
         if version.parse(app_version("pyss")) < version.parse(min_version):
@@ -66,8 +74,8 @@ def get_scripts() -> tuple[list, str]:
             )
             sys.exit(1)
 
-    scripts = scripts_config["scripts"]
-    return scripts, scripts_file
+    scripts = cfg["scripts"]
+    return scripts
 
 
 def print_scripts(scripts: list, scripts_file: str):

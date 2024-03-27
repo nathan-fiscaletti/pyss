@@ -66,6 +66,16 @@ $ pyss say-my-name
 Heisenberg
 ```
 
+#### Validating Your Configuration
+
+To ensure your configuration is valid, run the following command:
+
+```sh
+$ pyss --test
+[pyss][validate] Validating configuration file 'pyss.yaml'...
+[pyss][validate] Configuration file 'pyss.yaml' is valid.
+```
+
 #### Advanced Configuration
 
 For more complex setups, PySS supports environment variables, custom variables, pre/post execution scripts, and internal script designation:

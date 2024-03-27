@@ -25,7 +25,7 @@ def __execute_command(
     )
     if not quiet:
         if disable_output:
-            linfo("os.system (silent)", command_colored)
+            linfo("os.system <silent>", command_colored)
         else:
             linfo("os.system", command_colored)
 
@@ -130,7 +130,7 @@ def run_script(
 
     if not quiet:
         if disable_output:
-            linfo("run script (silent)", script["name"], DETAIL_COLOR)
+            linfo("run script <silent>", script["name"], DETAIL_COLOR)
         else:
             linfo("run script", script["name"], DETAIL_COLOR)
 

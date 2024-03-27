@@ -1,11 +1,12 @@
 import sys
 import os
 
+from jsonschema import ValidationError
 from termcolor import colored
 
-from pyss._logging import lerror
+from pyss._logging import lerror, linfo
 from pyss._arguments import parse_arguments
-from pyss._scripts import get_scripts, print_scripts
+from pyss._scripts import get_scripts, print_scripts, validate_config, get_raw_config
 from pyss._execution import run_script
 from pyss._constants import (
     NOT_FOUND_COLOR,
@@ -15,10 +16,22 @@ from pyss._constants import (
 
 def main():
     args, print_help = parse_arguments()
-    scripts, scripts_file = get_scripts()
 
+    cfg, cfg_file = get_raw_config()
+
+    if args.test:
+        try:
+            linfo("validate", f"Validating configuration file '{cfg_file}'...")
+            validate_config(cfg)
+            linfo("validate", f"Configuration file '{cfg_file}' is valid.")
+            sys.exit(0)
+        except ValidationError as e:
+            lerror(e.message, title="Validation Error")
+            sys.exit(1)
+
+    scripts = get_scripts(cfg)
     if args.list:
-        print_scripts(scripts, scripts_file)
+        print_scripts(scripts, cfg_file)
 
     if not args.script_name:
         lerror("No script name provided.")
@@ -29,7 +42,7 @@ def main():
 
     if not any(script["name"] == desired_script for script in scripts):
         script_name_colored = colored(desired_script, NOT_FOUND_COLOR)
-        scripts_file_colored = colored(scripts_file, FOUND_COLOR)
+        scripts_file_colored = colored(cfg_file, FOUND_COLOR)
         lerror(f"Script '{script_name_colored}' not found in {scripts_file_colored}.")
         sys.exit(1)
 

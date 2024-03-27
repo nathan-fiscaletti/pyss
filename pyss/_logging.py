@@ -8,4 +8,4 @@ def lerror(message, title="Error"):
 
 
 def linfo(header, message, color=INFO_COLOR):
-    print(f"{colored(f'[pyss] [{header}]', color)} '{message}'")
+    print(f"{colored(f'[pyss][{header}]', color)} {message}")
