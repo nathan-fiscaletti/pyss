@@ -8,11 +8,13 @@ scripts:
     command: "echo Goodbye, ${NAME}!"
 
   - name: run
-    description: Prints the name with a header.
+    description: Displays a customized greeting and farewell.
     before:
-     - print-greeting
-    command: echo Your name is ${NAME} && echo You are ${AGE} years old.
-    after:
-      - print-farewell
+      - script: print-greeting
+        silent: true
+    commands: 
+      - echo Your name is ${NAME}
+      - echo You are ${AGE} years old.
+    after: print-farewell
     env:
       NAME: Heisenberg

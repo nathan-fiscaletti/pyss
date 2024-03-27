@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="pyss",
-    version="1.0.8",
+    version="1.1.0",
     description="Adds a utility for running pyss.yaml files.",
     author="Nathan Fiscaletti",
     author_email="nate.fiscaletti@gmail.com",
@@ -12,6 +12,7 @@ setup(
         "PyYAML==6.0",
         "importlib-metadata==5.0.0",
         "packaging==21.3",
+        "jsonschema==4.20.0",
     ],
     entry_points={
         "console_scripts": [
