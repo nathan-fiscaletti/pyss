@@ -1,2 +1,2 @@
-termcolor
-PyYAML
+termcolor==2.2.0
+PyYAML==6.0
