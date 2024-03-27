@@ -1,11 +1,16 @@
 import re
 import sys
 import os
+
+import argparse
 import yaml
 
-from termcolor import colored
+import subprocess
 
-from importlib.metadata import version
+from importlib.metadata import version as app_version
+from packaging import version
+
+from termcolor import colored
 
 __SCRIPTS_FILE_PATTERN = r"pyss\.(yml|yaml)$"
 
@@ -60,13 +65,15 @@ def __evaluate_environment_variables(input: str) -> str:
     return input
 
 
-def __execute_command(command: str, silent: bool = False) -> int:
+def __execute_command(
+    command: str, quiet: bool = False, disable_output: bool = False
+) -> int:
     env_var_pattern = re.compile(r"\${([a-zA-Z_][a-zA-Z0-9_]*)}")
     command_colored = env_var_pattern.sub(
         lambda match: colored(match.group(), __ENV_VAR_COLOR),
         command,
     )
-    if not silent:
+    if not quiet:
         __info("os.system", command_colored)
 
     try:
@@ -75,38 +82,58 @@ def __execute_command(command: str, silent: bool = False) -> int:
         __error(e)
         return 1
 
-    return os.system(evaluated_script_command)
+    proc = subprocess.Popen(
+        evaluated_script_command,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE if not disable_output else None,
+        stderr=subprocess.PIPE if not disable_output else None,
+        shell=True,
+    )
+
+    try:
+        outs, errs = proc.communicate(timeout=15)
+        if outs:
+            print(outs.decode(), file=sys.stdout, end="")
+        if errs:
+            print(errs.decode(), file=sys.stderr, end="")
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        outs, errs = proc.communicate()
+
+    return proc.returncode
 
 
 def __execute_dependencies(
-    scripts: list, dependencies: list | str, silent: bool = False
+    scripts: list, dependencies: list | str, quiet: bool = False
 ) -> int:
     if not isinstance(dependencies, list):
         if dependencies in [script["name"] for script in scripts]:
-            exit_code = __run_script(scripts, dependencies, silent)
+            exit_code = __run_script(scripts, dependencies, quiet)
         else:
-            exit_code = __execute_command(dependencies, silent)
+            exit_code = __execute_command(dependencies, quiet)
         if exit_code != 0:
             return exit_code
     else:
         for dependency_script in dependencies:
             if dependency_script in [script["name"] for script in scripts]:
-                exit_code = __run_script(scripts, dependency_script, silent)
+                exit_code = __run_script(scripts, dependency_script, quiet)
             else:
-                exit_code = __execute_command(dependency_script, silent)
+                exit_code = __execute_command(dependency_script, quiet)
             if exit_code != 0:
                 return exit_code
     return 0
 
 
-def __run_script(scripts: list, script_name: str, silent: bool = False) -> int:
+def __run_script(
+    scripts: list, script_name: str, quiet: bool = False, disable_output: bool = False
+) -> int:
     if not any(script["name"] == script_name for script in scripts):
         __error(f"Script '{script_name}' not found.")
         return 1
 
     script = next(script for script in scripts if script["name"] == script_name)
 
-    if not silent:
+    if not quiet:
         __info("run script", script["name"], __DETAIL_COLOR)
 
     if "env" in script:
@@ -116,17 +143,17 @@ def __run_script(scripts: list, script_name: str, silent: bool = False) -> int:
         __prime_environment(script["env"])
 
     if "before" in script:
-        exit_code = __execute_dependencies(scripts, script["before"], silent)
+        exit_code = __execute_dependencies(scripts, script["before"], quiet)
         if exit_code != 0:
             return exit_code
 
     script_command = script["command"]
-    exit_code = __execute_command(script_command, silent)
+    exit_code = __execute_command(script_command, quiet)
     if exit_code != 0:
         return exit_code
 
     if "after" in script:
-        exit_code = __execute_dependencies(scripts, script["after"], silent)
+        exit_code = __execute_dependencies(scripts, script["after"], quiet)
         if exit_code != 0:
             return exit_code
 
@@ -154,6 +181,30 @@ def __get_scripts() -> tuple[list, str]:
     if "scripts" not in scripts_config:
         __error("No 'scripts' key found in the PySS YAML file.")
         sys.exit(1)
+
+    min_version = None
+    max_version = None
+
+    if "pyss" in scripts_config:
+        if "min_version" in scripts_config["pyss"]:
+            min_version = scripts_config["pyss"]["min_version"]
+        if "max_version" in scripts_config["pyss"]:
+            max_version = scripts_config["pyss"]["max_version"]
+
+    if min_version is not None:
+        if version.parse(app_version("pyss")) < version.parse(min_version):
+            __error(
+                f"This PySS project requires at least version {min_version} of PySS."
+            )
+            __error(f"Current version: {app_version('pyss')}.")
+            sys.exit(1)
+
+    if max_version is not None:
+        if version.parse(app_version("pyss")) > version.parse(max_version):
+            __error(
+                f"PySS version {app_version('pyss')} is not supported by this PySS project."
+            )
+            sys.exit(1)
 
     scripts = scripts_config["scripts"]
     if not isinstance(scripts, list):
@@ -186,32 +237,57 @@ def __print_scripts(scripts: list, scripts_file: str):
     sys.exit(0)
 
 
-def __print_help():
-    print(colored(f"Python Script Support (PySS) - v{version('pyss')}", "white"))
-    print()
-    print("  Author:   Nathan Fiscaletti")
-    print("  Website:  github.com/nathan-fiscaletti/pyss")
-    print()
-    print("A simple script runner for Python.")
-    print()
-    print("Usage: pyss [options] <script_name>")
-    print()
-    print("Options:")
-    print("    --list : List all available scripts.")
-    print("    --help : Show this help message.")
-    sys.exit(0)
+def __parse_arguments() -> tuple[argparse.Namespace, lambda: None]:
+    parser = argparse.ArgumentParser(
+        prog="pyss",
+        usage="%(prog)s [options] [script_name]",
+        description="A simple script runner for Python.",
+        epilog="For more information, visit: https://github.com/nathan-fiscaletti/pyss",
+    )
+
+    parser.add_argument(
+        "-l", "--list", action="store_true", help="List all available scripts."
+    )
+
+    parser.add_argument(
+        "-s",
+        "--silent",
+        action="store_true",
+        help="Run the script suppressing all output.",
+    )
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="Run the script suppressing header [pyss] messages.",
+    )
+
+    parser.add_argument(
+        "-v",
+        "--version",
+        help="Prints the program version to stdout.",
+        action="version",
+        version=f"%(prog)s v{app_version('pyss')}",
+    )
+
+    parser.add_argument("script_name", nargs="?", help="The name of the script to run.")
+
+    return parser.parse_args(), lambda: parser.print_help()
 
 
-def __evaluate(action: str, silent: bool = False):
+def main():
+    args, print_help = __parse_arguments()
     scripts, scripts_file = __get_scripts()
 
-    if action == "--list":
+    if args.list:
         __print_scripts(scripts, scripts_file)
 
-    if action == "--help":
-        __print_help()
+    if not args.script_name:
+        __error("No script name provided.")
+        print_help()
+        sys.exit(1)
 
-    desired_script = action
+    desired_script = args.script_name
 
     if not any(script["name"] == desired_script for script in scripts):
         script_name_colored = colored(desired_script, __NOT_FOUND_COLOR)
@@ -228,19 +304,12 @@ def __evaluate(action: str, silent: bool = False):
                     sys.exit(1)
             break
 
-    exit_code = __run_script(scripts, desired_script, silent)
+    if args.silent:
+        sys.stdout = open(os.devnull, "w")
+        sys.stderr = open(os.devnull, "w")
+
+    exit_code = __run_script(scripts, desired_script, args.quiet)
     sys.exit(exit_code)
-
-
-def main():
-    action_idx = 1
-    silent = False
-    if sys.argv[1] == "--silent":
-        silent = True
-        action_idx = 2
-    action = sys.argv[action_idx]
-
-    __evaluate(action, silent)
 
 
 if __name__ == "__main__":

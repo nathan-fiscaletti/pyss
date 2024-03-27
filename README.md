@@ -10,18 +10,41 @@ pip install pyss
 
 ## Usage
 
-Define a `pyss.yaml` file in the root of your project. This file should contain a list of commands to run.
+```yaml
+usage: pyss [options] [script_name]
+
+A simple script runner for Python.
+
+positional arguments:
+  script_name   The name of the script to run.
+
+options:
+  -h, --help    show this help message and exit
+  -l, --list    List all available scripts.
+  -s, --silent  Run the script suppressing all output.
+  -q, --quiet   Run the script suppressing header [pyss] messages.
+```
+
+Define a `pyss.yaml` or `pyss.yml` file in the root of your project. This file should contain a list of commands to run.
 
 ### Basic Example
 
 ```yaml
+# Optionally provide a configuration
+# for this PySS file. All fields are
+# optional.
+pyss:
+ min_version: 1.0.2
+ max_version: 1.0.5
+
+# Define a list of scripts that can be run.
 scripts:
   - name: say-my-name
     description: Says his name
     command: echo Heisenberg
 ```
 
-Then, to run one of the commands, use the `pyss` command from the root of your project.
+Then, to run one of the scripts, use the `pyss` command from the root of your project.
 
 ```bash
 $ pyss say-my-name
@@ -40,9 +63,9 @@ Heisenberg
 - You can provide 'before' and 'after' scripts to run before and after the main command.
   - The `before` and `after` scripts can be a single script or a list of scripts.
   - The `before` and `after` scripts can either be a shell command to execute, or the name of another script defined in the `pyss.yaml` file.
-- You can mark scripts as "internal". When marked as internal, the script will not show in `--list` command and cannot be executed directly.
+- You can mark scripts as "internal". 
+  - Internal scripts will not show in `--list` output and cannot be executed directly.
   - For internal scripts, the `description` field is optional.
-- You can use the `--silent` flag to hide the header output.
 
 ```yaml
 scripts:
@@ -65,18 +88,9 @@ scripts:
       NAME: Heisenberg
 ```
 
-**With `--silent`**
+### Execution Example
 
-```sh
-$ export AGE=28
-$ pyss --silent run
-Hello, Heisenberg!
-Your name is Heisenberg
-You are 28 years old.
-Goodbye, Heisenberg!
-```
-
-**Without `--silent`**
+**Without any flags (Verbose)**
 
 ```sh
 $ export AGE=28
@@ -92,6 +106,23 @@ You are 28 years old.
 [pyss] [os.system] 'echo Goodbye, ${NAME}!'
 Goodbye, Heisenberg!
 ```
+
+**With `--quiet`**
+
+> Quiet mode suppresses the `[pyss]` messages. (Will still print error messages)
+
+```sh
+$ export AGE=28
+$ pyss --quiet run
+Hello, Heisenberg!
+Your name is Heisenberg
+You are 28 years old.
+Goodbye, Heisenberg!
+```
+
+**With `--silent`**
+
+> Silent mode suppresses all output.
 
 ## Utility
 
