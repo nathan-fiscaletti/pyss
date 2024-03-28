@@ -28,14 +28,15 @@ usage: pyss [options] [script_name]
 A simple script runner for Python.
 
 positional arguments:
-  script_name    The name of the script to run.
+  script_name    the name of the script to execute
 
 options:
   -h, --help     show this help message and exit
-  -l, --list     List all available scripts.
-  -s, --silent   Run the script suppressing all output.
-  -q, --quiet    Run the script suppressing header [pyss] messages.
-  -v, --version  Prints the program version to stdout.
+  -l, --list     show a list of all scripts configured for use
+  -t, --test     validate the pyss configuration file
+  -s, --silent   execute the script without any output
+  -q, --quiet    execute the script while omitting the [pyss] header messages
+  -v, --version  prints the program version to stdout
 ```
 
 To configure your project with PySS, create a `pyss.yaml` or `pyss.yml` file at the project root. This file should enumerate the commands you plan to execute.
@@ -48,7 +49,7 @@ Below is a straightforward example to get you started:
 # Configure PySS settings here (all optional).
 pyss:
  min_version: 1.0.2
- max_version: 1.1.0
+ max_version: 1.1.3
 
 # List your executable scripts.
 scripts:
