@@ -4,10 +4,11 @@ import os
 from jsonschema import ValidationError
 from termcolor import colored
 
-from pyss._logging import lerror, linfo
+from pyss._logging import log_error, log_info
 from pyss._arguments import parse_arguments
-from pyss._scripts import get_scripts, print_scripts, validate_config, get_raw_config
-from pyss._execution import run_script
+from pyss._scripts import get_scripts, print_scripts, validate_pyss_data, get_pyss_file
+from pyss._execution import run_pyss, PyssCfg
+from pyss._environment import prime_environment
 from pyss._constants import (
     NOT_FOUND_COLOR,
     FOUND_COLOR,
@@ -17,24 +18,26 @@ from pyss._constants import (
 def main():
     args, print_help = parse_arguments()
 
-    cfg, cfg_file = get_raw_config()
+    pyss_file = get_pyss_file()
+
+    file_location = pyss_file.file_location
 
     if args.test:
         try:
-            linfo("validate", f"Validating configuration file '{cfg_file}'...")
-            validate_config(cfg)
-            linfo("validate", f"Configuration file '{cfg_file}' is valid.")
+            log_info("validate", f"Validating configuration file '{file_location}'...")
+            validate_pyss_data(dict(pyss_file))
+            log_info("validate", f"Configuration file '{file_location}' is valid.")
             sys.exit(0)
         except ValidationError as e:
-            lerror(e.message, title="Validation Error")
+            log_error(e.message, title="Validation Error")
             sys.exit(1)
 
-    scripts = get_scripts(cfg)
+    scripts = get_scripts(pyss_file)
     if args.list:
-        print_scripts(scripts, cfg_file)
+        print_scripts(scripts, file_location)
 
     if not args.script_name:
-        lerror("No script name provided.")
+        log_error("No script name provided.")
         print_help()
         sys.exit(1)
 
@@ -42,8 +45,10 @@ def main():
 
     if not any(script["name"] == desired_script for script in scripts):
         script_name_colored = colored(desired_script, NOT_FOUND_COLOR)
-        scripts_file_colored = colored(cfg_file, FOUND_COLOR)
-        lerror(f"Script '{script_name_colored}' not found in {scripts_file_colored}.")
+        file_location_colored = colored(file_location, FOUND_COLOR)
+        log_error(
+            f"Script '{script_name_colored}' not found in {file_location_colored}."
+        )
         sys.exit(1)
 
     script = next(script for script in scripts if script["name"] == desired_script)
@@ -51,15 +56,26 @@ def main():
         if "internal" in script:
             if script["internal"]:
                 script_name_colored = colored(desired_script, NOT_FOUND_COLOR)
-                lerror(f"Script '{script_name_colored}' is internal.")
+                log_error(f"Script '{script_name_colored}' is internal.")
                 sys.exit(1)
+
+    if pyss_file.env is not None:
+        prime_environment(pyss_file.env)
 
     if args.silent:
         sys.stdout = open(os.devnull, "w")
         sys.stderr = open(os.devnull, "w")
 
-    exit_code = run_script(scripts, desired_script, args.quiet, args.silent)
-    sys.exit(exit_code)
+    sys.exit(
+        run_pyss(
+            PyssCfg(
+                scripts=scripts,
+                script_name=desired_script,
+                quiet=args.quiet,
+                disable_output=args.silent,
+            )
+        )
+    )
 
 
 if __name__ == "__main__":

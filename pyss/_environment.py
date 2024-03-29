@@ -7,7 +7,7 @@ def prime_environment(env: dict[str, any]):
     Prime the environment with the provided environment variables.
     """
     for key, value in env.items():
-        os.environ[key] = value
+        os.environ[key] = f"{value}"
 
 
 def clear_environment(env: dict[str, any]):

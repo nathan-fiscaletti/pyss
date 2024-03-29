@@ -10,10 +10,13 @@ scripts:
   - name: run
     description: Displays a customized greeting and farewell.
     before:
+      - command:
+          nt: "echo $PWD.path"
+          posix: "echo ${PWD}"
+          shell:
+            nt: "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
       - script: print-greeting
     commands: 
       - echo Your name is ${NAME}
       - echo You are ${AGE} years old.
     after: print-farewell
-    env:
-      NAME: Heisenberg

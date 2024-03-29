@@ -1,4 +1,4 @@
-SCRIPTS_FILE_PATTERN = r"pyss\.(yml|yaml)$"
+FILE_LOCATION_PATTERN = r"pyss\.(yml|yaml)$"
 
 NOT_FOUND_COLOR = "red"
 FOUND_COLOR = "green"

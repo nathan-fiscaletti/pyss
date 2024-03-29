@@ -13,6 +13,61 @@ def __version_format(value):
     return True
 
 
+__shell = {
+    "anyOf": [
+        {
+            "type": "string",
+        },
+        {
+            "type": "object",
+            "properties": {
+                "nt": {"type": "string"},
+                "posix": {"type": "string"},
+            },
+            "anyOf": [
+                {"required": ["nt"]},
+                {"required": ["posix"]},
+            ],
+        },
+    ]
+}
+
+__env = {
+    "type": "object",
+}
+
+__header = {
+    "type": "object",
+    "properties": {
+        # Optional properties to set version constraints
+        "min_version": {"type": "string", "format": "version"},
+        "max_version": {"type": "string", "format": "version"},
+        "shell": __shell,
+    },
+}
+
+__command = {
+    "anyOf": [
+        {
+            "type": "string",
+        },
+        {
+            "type": "object",
+            "properties": {
+                "nt": {"type": "string"},
+                "posix": {"type": "string"},
+                "cmd": {"type": "string"},
+                "shell": __shell,
+            },
+            "anyOf": [
+                {"required": ["nt"]},
+                {"required": ["posix"]},
+                {"required": ["cmd"]},
+            ],
+        },
+    ]
+}
+
 __dependency = {
     "anyOf": [
         {
@@ -22,16 +77,12 @@ __dependency = {
             "type": "object",
             "properties": {
                 "script": {"type": "string"},
-                "command": {"type": "string"},
+                "command": __command,
                 "commands": {
                     "type": "array",
-                    "items": {
-                        "type": "string",
-                    },
+                    "items": __command,
                 },
-                "env": {
-                    "type": "object",
-                },
+                "env": __env,
                 "silent": {
                     "type": "boolean",
                 },
@@ -58,15 +109,10 @@ __dependencies = {
 __schema = {
     "type": "object",
     "properties": {
+        # Custom environment
+        "env": __env,
         # PySS Configuration
-        "pyss": {
-            "type": "object",
-            "properties": {
-                # Optional properties to set version constraints
-                "min_version": {"type": "string", "format": "version"},
-                "max_version": {"type": "string", "format": "version"},
-            },
-        },
+        "pyss": __header,
         # Script Configuration
         "scripts": {
             "type": "array",
@@ -78,8 +124,8 @@ __schema = {
                     "internal": {"type": "boolean"},
                     "before": __dependencies,
                     "after": __dependencies,
-                    "command": {"type": "string"},
-                    "commands": {"type": "array", "items": {"type": "string"}},
+                    "command": __command,
+                    "commands": {"type": "array", "items": __command},
                 },
                 "required": ["name"],
                 "oneOf": [{"required": ["command"]}, {"required": ["commands"]}],
@@ -101,7 +147,7 @@ __schema = {
 }
 
 
-def validate_pyss(data):
+def validate_pyss_data(data: dict):
     jsonschema.validate(
         instance=data, schema=__schema, format_checker=jsonschema.FormatChecker()
     )
