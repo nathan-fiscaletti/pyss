@@ -1,8 +1,10 @@
 import jsonschema
 import re
 
+__version_format_checker = jsonschema.FormatChecker()
 
-@jsonschema.FormatChecker.cls_checks("version")
+
+@__version_format_checker.checks("version")
 def __version_format(value):
     pattern = r"^\d+\.\d+\.\d+$"
     if not re.match(pattern, value):
@@ -21,12 +23,22 @@ __shell = {
         {
             "type": "object",
             "properties": {
-                "nt": {"type": "string"},
-                "posix": {"type": "string"},
+                "aix": {"type": "string"},
+                "emscripten": {"type": "string"},
+                "linux": {"type": "string"},
+                "wasi": {"type": "string"},
+                "win32": {"type": "string"},
+                "cygwin": {"type": "string"},
+                "darwin": {"type": "string"},
             },
-            "anyOf": [
-                {"required": ["nt"]},
-                {"required": ["posix"]},
+            "oneOf": [
+                {"required": ["aix"]},
+                {"required": ["emscripten"]},
+                {"required": ["linux"]},
+                {"required": ["wasi"]},
+                {"required": ["win32"]},
+                {"required": ["cygwin"]},
+                {"required": ["darwin"]},
             ],
         },
     ]
@@ -54,15 +66,31 @@ __command = {
         {
             "type": "object",
             "properties": {
-                "nt": {"type": "string"},
-                "posix": {"type": "string"},
+                "aix": {"type": "string"},
+                "emscripten": {"type": "string"},
+                "linux": {"type": "string"},
+                "wasi": {"type": "string"},
+                "win32": {"type": "string"},
+                "cygwin": {"type": "string"},
+                "darwin": {"type": "string"},
                 "cmd": {"type": "string"},
                 "shell": __shell,
+                "env": __env,
             },
-            "anyOf": [
-                {"required": ["nt"]},
-                {"required": ["posix"]},
-                {"required": ["cmd"]},
+            "oneOf": [
+                {
+                    "required": ["cmd"],
+                },
+                {
+                    "anyOf": [
+                        {"required": ["emscripten"]},
+                        {"required": ["linux"]},
+                        {"required": ["wasi"]},
+                        {"required": ["win32"]},
+                        {"required": ["cygwin"]},
+                        {"required": ["darwin"]},
+                    ],
+                },
             ],
         },
     ]
@@ -148,6 +176,8 @@ __schema = {
 
 
 def validate_pyss_data(data: dict):
+    global __version_format_checker
+
     jsonschema.validate(
-        instance=data, schema=__schema, format_checker=jsonschema.FormatChecker()
+        instance=data, schema=__schema, format_checker=__version_format_checker
     )

@@ -11,10 +11,10 @@ scripts:
     description: Displays a customized greeting and farewell.
     before:
       - command:
-          nt: "echo $PWD.path"
-          posix: "echo ${PWD}"
+          win32: "echo $PWD.path"
+          linux: "echo ${PWD}"
           shell:
-            nt: "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+            win32: "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
       - script: print-greeting
     commands: 
       - echo Your name is ${NAME}

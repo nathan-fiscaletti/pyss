@@ -1,35 +1,33 @@
 import os
+import sys
 
 
-class Shell:
-    _nt: str = None
-    _posix: str = None
+class PlatformSpecificValue:
+    _value: str | dict = None
 
     def __init__(self, shell: str | dict):
-        if isinstance(shell, str):
-            self._nt = shell
-            self._posix = shell
-        elif isinstance(shell, dict):
-            self._nt = shell.get("nt")
-            self._posix = shell.get("posix")
+        self._value = shell
 
     def get(self) -> str:
-        if os.name == "nt" and self._nt is not None:
-            return self._nt
-        elif os.name == "posix" and self._posix is not None:
-            return self._posix
+        if isinstance(self._value, str) or self._value is None:
+            return self._value
+
+        if isinstance(self._value, dict):
+            if sys.platform in self._value:
+                return self._value[sys.platform]
+
         return None
 
 
 class PyssFileHeader:
     min_version: str
     max_version: str
-    shell: Shell
+    shell: PlatformSpecificValue
 
     def __init__(self, data: dict):
         self.min_version = data.get("min_version")
         self.max_version = data.get("max_version")
-        self.shell = Shell(data.get("shell"))
+        self.shell = PlatformSpecificValue(data.get("shell"))
 
 
 class PySSFile(dict):
@@ -72,27 +70,23 @@ class PyssCfg:
 
 
 class Command:
-    _nt: str = None
-    _posix: str = None
-    _cmd: str = None
-    _shell: Shell = None
+    _value: str | dict
 
     def __init__(self, cmd: str | dict):
-        if isinstance(cmd, str):
-            self._cmd = cmd
-        elif isinstance(cmd, dict):
-            self._nt = cmd.get("nt")
-            self._posix = cmd.get("posix")
-            self._cmd = cmd.get("cmd")
-            if "shell" in cmd:
-                self._shell = Shell(cmd.get("shell"))
+        self._value = cmd
 
     def get(self) -> str:
-        if os.name == "nt" and self._nt is not None:
-            return self._nt
-        elif os.name == "posix" and self.__posix is not None:
-            return self._posix
-        return self._cmd
+        if self._value is None or isinstance(self._value, str):
+            return self._value
 
-    def get_shell(self) -> Shell | None:
-        return self._shell
+        if isinstance(self._value, dict):
+            if "cmd" in self._value:
+                return self._value.get("cmd")
+
+            if sys.platform in self._value:
+                return self._value[sys.platform]
+
+    def get_shell(self) -> PlatformSpecificValue | None:
+        if "shell" in self._value:
+            return PlatformSpecificValue(self._value.get("shell"))
+        return None

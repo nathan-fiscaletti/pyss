@@ -30,17 +30,19 @@ In this example, `PROJECT_DIR` and `DB_PASSWORD` are custom environment variable
 
 ## Internal Scripts
 
-- Scripts marked as "internal" won't appear in the `--list` output and can't be invoked directly. The `description` for internal scripts is optional.
-
-#### Example
+Scripts marked as "internal" won't appear in the `--list` output and can't be invoked directly. The `description` for internal scripts is optional. These scripts are typically used as pre/post execution scripts for other scripts.
 
 ```yaml
+env:
+  NAME: "Heisenberg"
+
 scripts:
   - name: print-greeting
     internal: true
     command: echo Hello, ${NAME}!
 
   - name: run
+    description: Displays a customized greeting followed by your name.
     before: print-greeting
     command: echo Your name is ${NAME}
 ```
@@ -60,27 +62,20 @@ Customize the shell used to execute scripts by specifying the `shell` property i
 
 Shell objects can either be a **string representing a shell to use**, or **an object specifying a different shell to use for different systems.**
 
-```yaml
-shell: /bin/sh
-```
-
-The shell object supports distinct shells for `os.name` values (`nt` and `posix`) and `sys.platform` values (`win32`, `linux` and `darwin`).
+#### Shell Property in Header
 
 ```yaml
-shell:
-  nt: "C:\\Windows\\System32\\cmd.exe"
-  posix: "/bin/sh"
+pyss:
+  shell: /bin/sh
 ```
 
-#### Shell Property in PySS Header
-
-If a shell is specified in the header, PySS will use `subprocess.Popen` with the `executable` parameter set to the specified shell. 
+The shell object supports distinct shells for `sys.platform` values (`darwin`, `win32`, `linux` etc.). See [sys.platform values](https://docs.python.org/3/library/sys.html#sys.platform) in the Python documentation for more information.
 
 ```yaml
 pyss:
   shell:
-    nt: "C:\\Windows\\System32\\cmd.exe"
-    posix: "/bin/sh"
+    win32: "C:\\Windows\\System32\\cmd.exe"
+    linux: "/bin/sh"
 ```
 
 #### Shell Property in Command Object
@@ -90,12 +85,12 @@ If a shell is specified in a command object, PySS will use `subprocess.Popen` wi
 ```yaml
 scripts:
   - name: print-pwd
+    description: Displays the current working directory.
     command: 
-      nt: "echo $PWD.path"
-      posix: "echo ${PWD}"
+      win32: "echo $PWD.path"
+      linux: "echo ${PWD}"
       shell:
-        nt: "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
-
+        win32: "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
 ```
 
 
@@ -105,16 +100,15 @@ Command objects offer flexibility in script configuration, allowing for system-s
   
 ### System-Specific Commands
 
-For scripts that need to run different commands based on the operating system, use an object with keys for each system type. The supported system types include `os.name` values (`nt` for Windows, `posix` for other systems) as well as `sys.platform` values (`win32`, `linux` and `darwin`).
-
-#### Example
+For scripts that need to run different commands based on the operating system, use an object with keys for each system type. The supported system types include `sys.platform` values (`win32`, `linux`, `darwin`, etc.) See [sys.platform values](https://docs.python.org/3/library/sys.html#sys.platform) in the Python documentation for more information.
 
 ```yaml
 scripts:
   - name: check-disk-space
+    description: Displays the available disk space on the system.
     command:
-      nt: "fsutil volume diskfree C:"
-      posix: "df -h /"
+      win32: "fsutil volume diskfree C:"
+      linux: "df -h /"
 ```
 
 This script, `check-disk-space`, runs different commands based on the operating system. It uses `fsutil` on Windows and `df` on Unix-like systems to check disk space.
@@ -123,17 +117,15 @@ This script, `check-disk-space`, runs different commands based on the operating 
 
 In some cases, you may want to execute a command using a specific shell. This can be done by specifying the `shell` property within the command object.
 
-#### Example
-
 ```yaml
 scripts:
   - name: list-files
+    description: Lists all files in the current directory.
     command: "ls -la"
     shell: "/bin/bash"
 ```
 
 Here, the `list-files` script explicitly specifies `/bin/bash` as the shell for executing the `ls -la` command. See the [Shell Customization](#shell-customization) section for more details on shell customization.
-
 
 ## Pre/Post Execution Scripts
 
@@ -142,8 +134,6 @@ PySS allows for the specification of scripts to be executed before (`before`) an
 ### Specifying Pre/Post Execution Scripts
 
 Pre/post execution scripts can enhance the script's functionality or perform necessary setup/cleanup tasks.
-
-#### Example
 
 ```yaml
 scripts:
@@ -164,7 +154,7 @@ scripts:
 
 In this configuration, `initialize` is run before `main-task`, and `cleanup` is run afterward. These pre/post execution scripts can be specified as a list, allowing for multiple scripts to run before or after the main script.
 
-## Example
+## Full Example
 
 ```yaml
 scripts:

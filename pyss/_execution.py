@@ -96,27 +96,13 @@ def __execute_command(
     proc = subprocess.Popen(
         evaluated_script_command,
         cwd=pyss_directory,
-        stdout=subprocess.DEVNULL if cfg.disable_output else None,
-        stderr=subprocess.DEVNULL if cfg.disable_output else None,
+        stdout=subprocess.DEVNULL if cfg.disable_output else sys.stdout,
+        stderr=subprocess.DEVNULL if cfg.disable_output else sys.stderr,
         shell=True,
         executable=shell,
     )
 
-    try:
-        outs, errs = proc.communicate(timeout=30)
-        if outs:
-            print(outs.decode(), file=sys.stdout, end="")
-        if errs:
-            print(errs.decode(), file=sys.stderr, end="")
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        outs, errs = proc.communicate()
-        if outs:
-            print(outs.decode(), file=sys.stdout, end="")
-        if errs:
-            print(errs.decode(), file=sys.stderr, end="")
-
-    return proc.returncode
+    return proc.wait()
 
 
 def __execute_dependency(
