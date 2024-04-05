@@ -6,7 +6,7 @@
 [![Downloads](https://static.pepy.tech/badge/pyss)](https://pepy.tech/project/pyss)
 [![Downloads](https://static.pepy.tech/badge/pyss/month)](https://pepy.tech/project/pyss)
 
-PySS offers an efficient way to manage and execute `pyss.yaml` configurations, enhancing your Python scripting workflow.
+PySS is a tool designed to facilitate the management and execution of `pyss.yaml` configurations, aimed at enhancing Python scripting workflows. It offers a straightforward command-line interface for executing scripts defined in a `pyss.yaml` or `pyss.yml` file, with capabilities for testing configurations, silent and quiet execution modes, and advanced configuration options including environment variables, custom variables, and pre/post execution scripts. The project is open-source, licensed under the MIT License, and is geared towards simplifying script execution tasks for Python developers
 
 ## Installing PySS
 
