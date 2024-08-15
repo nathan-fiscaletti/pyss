@@ -34,7 +34,7 @@ def main():
 
     scripts = get_scripts(pyss_file)
     if args.list:
-        print_scripts(scripts, file_location)
+        print_scripts(scripts)
 
     if not args.script_name:
         log_error("No script name provided.")

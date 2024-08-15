@@ -47,7 +47,7 @@ Below is a straightforward example to get you started:
 # Configure PySS settings here (all optional).
 pyss:
  min_version: 1.0.2
- max_version: 1.1.6
+ max_version: 1.1.7
 
 # List your executable scripts.
 scripts:
